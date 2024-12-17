@@ -68,7 +68,7 @@ class AudioDevices:
     @classmethod
     def list_audio_devices(
         cls, pyaudio: PyAudio
-    ) -> Tuple[List[Tuple[int, str]], List[Tuple[int, str]]]:
+    ) -> Tuple[List[Tuple[int, str, int]], List[Tuple[int, str, int]]]:
         
         # Get host API info and number of devices
         info = pyaudio.get_host_api_info_by_index(0)
@@ -90,15 +90,24 @@ class AudioDevices:
         return input_devices, output_devices
 
     @classmethod
-    def choose_device(cls, devices, device_type="input"):
+    def choose_device(cls, pyaudio, devices, device_type="input"):
         """
-        Automatically select the first available device from the list.
+        Automatically select the Bluetooth device if available, otherwise select the first available device.
         """
         if not devices:
             print(f"No {device_type} devices found.")
             return None
 
-        # Automatically select the first available device
+        # Check for Bluetooth devices based on properties
+        for device in devices:
+            device_info = pyaudio.get_device_info_by_index(device[0])
+            if device_info.get('hostApi') == 5:  # Typically, Bluetooth devices have a specific host API
+                if device_type == "input":
+                    return device[0], device[2]  # Return index and sample rate for input devices
+                else:
+                    return device[0]  # Return index for output devices
+
+        # If no Bluetooth devices are found, select the first available device
         selected_device = devices[0]
         if device_type == "input":
             return selected_device[0], selected_device[2]  # Return index and sample rate for input devices

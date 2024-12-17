@@ -26,13 +26,13 @@ async def main():
     # List available audio input and output devices
     input_devices, output_devices = AudioDevices.list_audio_devices(pyaudio)
     
-    # Choose the audio input device and get its sample rate
+    # Automatically choose the audio input device and get its sample rate
     input_device_index, input_device_sample_rate = AudioDevices.choose_device(
-        input_devices, "input"
+        pyaudio, input_devices, "input"
     )
     
-    # Choose the audio output device
-    output_device_index = AudioDevices.choose_device(output_devices, "output")
+    # Automatically choose the audio output device
+    output_device_index = AudioDevices.choose_device(pyaudio, output_devices, "output")
 
     # Open the audio stream with the selected parameters
     audio_stream = pyaudio.open(
